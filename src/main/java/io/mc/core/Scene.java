@@ -1,37 +1,150 @@
 package io.mc.core;
 
+import java.io.File;
+import java.nio.file.Files;
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.logging.Logger;
+
+import dev.dominion.ecs.api.Dominion;
+import io.mc.gui.Gui;
+import io.mc.gui.MainMenu;
+import io.mc.renderer.Frustum;
+import io.mc.renderer.Renderer;
+import io.mc.renderer.Texture;
+import io.mc.utils.TexturePacker;
+import io.mc.world.World;
 
 public class Scene {
     private static final Logger logger = Logger.getLogger(Scene.class.getName());
 
     // Global variables
-    public boolean serializeEvents = false;
-    public boolean playFromEventFile = false;
+    public static boolean serializeEvents = false;
+    public static boolean playFromEventFile = false;
 
     // Internal variables
-    private static SceneType currentScene = SceneType.None;
-    private static SceneType nextSceneType = SceneType.None;
-    private static boolean changeSceneAtFrameEnd = false;
+    public static SceneType currentScene = SceneType.None;
+    public static SceneType nextSceneType = SceneType.None;
+    public static boolean changeSceneAtFrameEnd = false;
 
-    public static void init(SceneType sceneType) {
+    public static Dominion registry = null;
+    public static Texture worldTexture = null;
+    public static Texture itemTexture = null;
+
+    public static Texture blockItemTexture = null;
+    public static Queue<GEvent> events = new LinkedList<>();
+
+    public static File serializedEventFile = null;
+    
+    public static Camera camera = null;
+    public static Frustum frustum = null;
+
+    private static boolean changedSceneAtFrameEnd;
+
+    private static Frustum cameraFrustum;
+
+    private Scene() {
 
     }
 
-    public void update() {
+    public static void init(SceneType sceneType, Dominion registry) {
+        // var file = Files.createDirectory("assets/generated", null);
+
+        final String packedTecturesFilePath = "assets/generated/packedTextures.png";
+        final String packedItemTextureFilePath = "assets/generated/pacledItemTexture.png";
+
+        TexturePacker.packTextures("assets/image/item", "assets/generated/itemTextureFormat.yaml");
+
+        Scene.registry = registry;
+    }
+
+    public static void update() {
+        Gui.beginFrame();
+
+        if (serializedEventFile == null && (serializeEvents || playFromEventFile)) {
+
+            String eventFilepath = World.getWorldReplayDirPath(World.savePath) + "/replay.bin";
+
+            if (playFromEventFile) {
+                eventFilepath = World.savePath + "/replay.bin";
+            }
+
+            if (serializeEvents) {
+                serializedEventFile = new File(eventFilepath);
+
+            }
+        }
+        
+        queueMainEvent(GEventType.SetDeltaTime, Application.deltaTime, false);
+        processEvent(null, 0, 0);
+
+        switch (currentScene) {
+            case LocalLanGame:
+                break;
+            case MainMenu:
+                MainMenu.update();
+                break;
+            case MultiplayerGame:
+                break;
+            case None:
+                break;
+            case Replay:
+                
+                World.update(cameraFrustum, worldTexture);
+                break;
+            case SinglePlayerGame:
+                break;
+            default:
+                logger.info("Cannot update unkown scene type");
+                break;
+
+        }
+
+        Renderer.render();
+
+        queueMainEvent(GEventType.FrameTick, 0, false);
+
+        
+        if (changedSceneAtFrameEnd) {
+            changedSceneAtFrameEnd = false;
+            changeSceneInternal();
+        }
 
     }
 
     public void changeScene(SceneType type) {
-
+        Scene.changedSceneAtFrameEnd = true;
+        nextSceneType = type;
     }
 
     public void reloadShaders() {
+        Renderer.reloadShaders();
+        switch (currentScene) {
+            case LocalLanGame:
+                break;
+            case MainMenu:
+                MainMenu.reloadShaders();
+                break;
+            case MultiplayerGame:
+                break;
+            case None:
+                break;
+            case Replay:
+                World.reloadShaders();
+                break;
+            case SinglePlayerGame:
+                break;
+            default:
+                break;
 
+        }
     }
 
-    public void queueMainEvent(GEventType type) {
+    public static void queueMainEvent(GEventType type, float deltaTime, boolean freeData) {
+        if (!playFromEventFile) {
+            // GEvent event = new GEvent(type, deltaTime);
 
+        }
     }
 
     public void queueMainEventKey(int key, int action) {
@@ -59,16 +172,81 @@ public class Scene {
     }
 
     public static void free(boolean freeGlobalResources) {
+        if (freeGlobalResources) {
+            worldTexture.destroy();
+            itemTexture.destroy();
+            blockItemTexture.destroy();
+        }
 
+        if (serializeEvents) {
+            serializedEventFile = null;
+            serializeEvents = false;
+        }
+
+        switch (currentScene) {
+            case LocalLanGame:
+                break;
+            case MainMenu:
+                MainMenu.free();
+                break;
+            case MultiplayerGame:
+                World.free();
+                break;
+            case None:
+                break;
+            case Replay:
+                World.free(false);
+                World.popSavePath();
+                break;
+            case SinglePlayerGame:
+                break;
+            default:
+                break;
+        }
+
+        currentScene = SceneType.None;
     }
 
     public boolean isPlayingGame() {
         return currentScene == SceneType.SinglePlayerGame;
     }
 
+    Camera getCamera() {
+        return camera;
+    }
+
     // Internal functions
     private static void changeSceneInternal() {
+        free(false);
 
+        resetRegistry();
+
+        switch (nextSceneType) {
+            case LocalLanGame:
+                World.init(registry, true);
+                break;
+            case MainMenu:
+                break;
+            case MultiplayerGame:
+                World.init(registry, false);
+                break;
+            case None:
+                break;
+            case Replay:
+                break;
+            case SinglePlayerGame:
+                World.init(registry, false);
+                break;
+            default:
+                break;
+
+        }
+
+        currentScene = nextSceneType;
+        nextSceneType = SceneType.None;
+    }
+
+    private static void resetRegistry() {
     }
 
     private static void addCameraToRegistry() {
@@ -118,6 +296,9 @@ public class Scene {
                 logger.severe("Tried to get size of unknown event '%s' in World::getEventSize().");
                 return -1;
         }
+    }
+
+    public static void free() {
     }
 }
 

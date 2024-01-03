@@ -1,15 +1,22 @@
 package io.mc.core;
 
 import static org.lwjgl.glfw.GLFW.GLFW_CONTEXT_VERSION_MAJOR;
+import static org.lwjgl.glfw.GLFW.GLFW_CURSOR_DISABLED;
+import static org.lwjgl.glfw.GLFW.GLFW_CURSOR_HIDDEN;
+import static org.lwjgl.glfw.GLFW.GLFW_CURSOR_NORMAL;
+import static org.lwjgl.glfw.GLFW.glfwGetMonitorPos;
 import static org.lwjgl.glfw.GLFW.glfwInit;
+import static org.lwjgl.glfw.GLFW.glfwSetInputMode;
 import static org.lwjgl.glfw.GLFW.glfwSwapInterval;
 import static org.lwjgl.glfw.GLFW.glfwWindowHint;
 
 import java.util.logging.Logger;
 
 import org.lwjgl.glfw.GLFW;
+import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.system.MemoryUtil;
+import org.lwjgl.system.NativeType;
 
 import io.mc.input.*;
 
@@ -20,47 +27,12 @@ public class Window {
     int height;
 
     String title;
-    long windowPtr;
 
+    static long windowPtr;
 
-    public Window(String title) {
-        long monitor = GLFW.glfwGetPrimaryMonitor();
+    private Window() {
 
-        if (monitor == MemoryUtil.NULL) {
-            logger.severe("Failed to get primary monitor");
-            
-        }
-
-        final GLFWVidMode mode = GLFW.glfwGetVideoMode(monitor);
-
-        if (mode == null) {
-            logger.severe("Failed to get video mode of primary monitor.");
-            
-        }
-
-        logger.info(String.format("Montior size: %d, %d", mode.WIDTH, mode.HEIGHT));
-
-        this.width = mode.WIDTH / 2;
-        this.height = mode.HEIGHT / 2;
-        this.title = title;
-
-        this.windowPtr = GLFW.glfwCreateWindow(this.width, this.height, title, monitor, MemoryUtil.NULL);
-
-        if (this.windowPtr == MemoryUtil.NULL) {
-            GLFW.glfwTerminate();
-            logger.severe("Failed to create Window");
-            
-        }
-
-        logger.info("GLFW window created");
-
-        int monitorX;
-        int monitorY;
-
-
-        this.setVsync(true);
     }
-
 
     private static void resizeCallback(long windotPtr, int newWidth, int newHeight) {
         long userWindow = GLFW.glfwGetWindowUserPointer(windotPtr);
@@ -69,20 +41,22 @@ public class Window {
 
     }
 
-    
     public void makeContextCurrent() {
         GLFW.glfwMakeContextCurrent(windowPtr);
     }
-
-
 
     public void close() {
         GLFW.glfwSetWindowShouldClose(windowPtr, true);
     }
 
-
     void setCursorMode(CursorMode cursorMode) {
+        int glfwCursorMode =
+			cursorMode == CursorMode.LOCKED ? GLFW_CURSOR_DISABLED :
+			cursorMode == CursorMode.NORMAL ? GLFW_CURSOR_NORMAL :
+			cursorMode == CursorMode.HIDDEN ? GLFW_CURSOR_HIDDEN :
+			GLFW_CURSOR_HIDDEN;
 
+		glfwSetInputMode(windowPtr, GLFW.GLFW_CURSOR, glfwCursorMode);
     }
 
     void setTitle(String title) {
@@ -92,49 +66,69 @@ public class Window {
     void setSize(int width, int height) {
 
     }
+
     // Commenting out due to being a constructor
-    // static Window create(String title) {
-    //     Window res = new Window();
-    //     long monitor = GLFW.glfwGetPrimaryMonitor();
+    public static Window create(String title) {
+        Window res = new Window();
+        long monitor = GLFW.glfwGetPrimaryMonitor();
 
-    //     if (monitor == MemoryUtil.NULL) {
-    //         logger.severe("Failed to get primary monitor");
-    //         return null;
-    //     }
+        if (monitor == MemoryUtil.NULL) {
+            logger.severe("Failed to get primary monitor");
+            return null;
+        }
 
-    //     final GLFWVidMode mode = GLFW.glfwGetVideoMode(monitor);
+        final GLFWVidMode mode = GLFW.glfwGetVideoMode(monitor);
 
-    //     if (mode == null) {
-    //         logger.severe("Failed to get video mode of primary monitor.");
-    //         return null;
-    //     }
+        if (mode == null) {
+            logger.severe("Failed to get video mode of primary monitor.");
+            return null;
+        }
 
-    //     logger.info(String.format("Montior size: %d, %d", mode.WIDTH, mode.HEIGHT));
+        logger.info("Montior size: " + mode.WIDTH + " " + mode.HEIGHT);
 
-    //     res.width = mode.WIDTH / 2;
-    //     res.height = mode.HEIGHT / 2;
-    //     res.title = title;
+        res.width = mode.WIDTH / 2;
+        res.height = mode.HEIGHT / 2;
+        res.title = title;
 
-    //     res.windowPtr = GLFW.glfwCreateWindow(res.width, res.height, title, monitor, MemoryUtil.NULL);
+        res.windowPtr = GLFW.glfwCreateWindow(res.width, res.height, title, monitor, MemoryUtil.NULL);
 
-    //     if (res.windowPtr == MemoryUtil.NULL) {
-    //         GLFW.glfwTerminate();
-    //         logger.severe("Failed to create Window");
-    //         return res;
-    //     }
+        if (res.windowPtr == MemoryUtil.NULL) {
+            GLFW.glfwTerminate();
+            logger.severe("Failed to create Window");
+            return res;
+        }
 
-    //     logger.info("GLFW window created");
+        logger.info("GLFW window created");
 
-    //     int monitorX;
-    //     int monitorY;
+        // GLFW.glfwSetWindowUserPointer(res.windowPtr, GLFW.monitor);
+        GLFW.glfwMakeContextCurrent(res.windowPtr);
 
+        // GLFW.glfwSetCursorPosCallback(res.windowPtr, Input.mouseCallback);
+        // GLFW.glfwSetKeyCallback(Window.windowPtr, Input::keyCallback);
+        // GLFW.glfwSetFramebufferSizeCallback(windowPtr,resizeCallback);
+        // GLFW.glfwSetMouseButtonCallback((GLFWwindow*)res->windowPtr,
+        // Input::mouseButtonCallback);
+        // GLFW.glfwSetCharCallback((GLFWwindow*)res->windowPtr, Input::charCallback);
+        // GLFW.glfwSetScrollCallback((GLFWwindow*)res->windowPtr,
+        // Input::scrollCallback);
 
-    //     res.setVsync(true);
-    //     return res;
-    // }
+        Integer monitorX;
+        Integer monitorY;
+        // glfwGetMonitorPos(monitor, monitorX, monitorY);
 
-    public void init() {
-        GLFW.glfwInit();
+        res.setVsync(true);
+        return res;
+    }
+
+    public static void init() {
+        GLFWErrorCallback.createPrint(System.err).set();
+
+        var glfwInit = GLFW.glfwInit();
+
+        if (!glfwInit)
+            logger.severe("Unable to initialize GLFW");
+        
+        GLFW.glfwDefaultWindowHints();
         GLFW.glfwWindowHint(GLFW.GLFW_CONTEXT_VERSION_MAJOR, 4);
         GLFW.glfwWindowHint(GLFW.GLFW_CONTEXT_VERSION_MINOR, 6);
         GLFW.glfwWindowHint(GLFW.GLFW_OPENGL_PROFILE, GLFW.GLFW_OPENGL_CORE_PROFILE);
@@ -142,7 +136,7 @@ public class Window {
     }
 
     public static void free() {
-
+        GLFW.glfwTerminate();
     }
 
     public void pollInput() {
@@ -150,13 +144,11 @@ public class Window {
         GLFW.glfwPollEvents();
     }
 
-    
-
-    void destroy() {
+    static void destroy() {
         GLFW.glfwDestroyWindow(windowPtr);
     }
 
-    boolean shouldClose() {
+    static boolean shouldClose() {
         return GLFW.glfwWindowShouldClose(windowPtr);
     }
 
@@ -176,11 +168,8 @@ public class Window {
         }
     }
 
-    
-}
+    public static Window getWindow() {
+        return null;
+    }
 
-enum CursorMode {
-    HIDDEN,
-    LOCKED,
-    NORMAL
 }

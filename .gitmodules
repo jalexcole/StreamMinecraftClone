@@ -25,3 +25,6 @@
 [submodule "Minecraft/vendor/FastNoiseLite"]
 	path = Minecraft/vendor/FastNoiseLite
 	url = https://github.com/Auburn/FastNoiseLite
+[submodule "freetype"]
+	path = Minecraft/vendor/freetype
+	url = https://github.com/freetype/freetype.git

@@ -4,47 +4,57 @@ import java.util.logging.Logger;
 
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
+import org.jspecify.annotations.NonNull;
+import org.lwjgl.glfw.GLFW;
+
+import io.mc.core.Scene;
 
 public class Input {
-    float mouseScreenX = 0;
-    float mouseScreenY = 0;
+    public static float mouseScreenX = 0;
+    public static float mouseScreenY = 0;
     float mouseX = 0;
     float mouseY = 0;
     float lastMouseX = 0;
     float lastMouseY = 0;
-    float deltaMouseX = 0;
-    float deltaMouseY = 0;
-    float mouseScrollX = 0;
-    float mouseScrollY = 0;
+    static float deltaMouseX = 0;
+    static float deltaMouseY = 0;
+    static float mouseScrollX = 0;
+    static float mouseScrollY = 0;
     // boolean keyPressed[GLFW.GLFW_KEY_LAST] = {};
     // boolean keyBeginPressData[GLFW_KEY_LAST] = {};
     // boolean mousePressed[GLFW_MOUSE_BUTTON_LAST] = {};
     // boolean mouseBeginPressData[GLFW_MOUSE_BUTTON_LAST] = {};
 
-    char lastCharPressedData = '\0';
+    static char lastCharPressedData = '\0';
 
     static boolean mFirstMouse = true;
     static Vector2f windowSize = new Vector2f();
     static Matrix4f inverseProjectionMatrix = new Matrix4f();
+
+    private static boolean[] keyPressed = new boolean[GLFW.GLFW_KEY_LAST];
+    private static boolean[] keyBeginPressData = new boolean[GLFW.GLFW_KEY_LAST];
+    private static boolean[] mousePressed = new boolean[GLFW.GLFW_MOUSE_BUTTON_LAST];
+    private static boolean[] mouseBeginPressData = new boolean[GLFW.GLFW_MOUSE_BUTTON_LAST];
+
     private static final Logger logger = Logger.getLogger(Input.class.getName());
-    public void setProjectionMatrix(Matrix4f inProjectionMatrix) {
+    public void setProjectionMatrix(@NonNull Matrix4f inProjectionMatrix) {
         inverseProjectionMatrix = inProjectionMatrix.invert();
 
     }
 
-    public static void setWindowSize(Vector2f inWindowSize) {
+    public static void setWindowSize(@NonNull Vector2f inWindowSize) {
         windowSize = inWindowSize;
     }
 
-    void mouseButtonCallback(long window, int button, int action, int mods) {
-
+    public static void mouseButtonCallback(long window, int key, int scancode, int mods) {
+        // Scene.queueMainEventMouse((float) xpos, (float) ypos);
     }
 
     void processKeyEvent(int key, int action) {
 
     }
 
-    public void endFrame() {
+    public static void endFrame() {
         deltaMouseX = 0;
         deltaMouseY = 0;
         lastCharPressedData = '\0';
@@ -52,11 +62,25 @@ public class Input {
         mouseScrollY = 0;
     }
 
-    char lastCharPressed() {
+    public static char lastCharPressed() {
         return lastCharPressedData;
     }
 
     public static void setWindowSize(int newWidth, int newHeight) {
     }
+
+    public static boolean mouseBeginPress(int mouseButton) {
+        return mouseBeginPressData[mouseButton];
+    }
+
+    public static boolean isMousePressed(int glfwMouseButtonLeft) {
+        return false;
+    }
+
+    public static boolean isKeyPressed(int glfwKeyBackspace) {
+        return false;
+    }
+
+
 
 }

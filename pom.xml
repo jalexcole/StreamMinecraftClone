@@ -10,10 +10,10 @@
         <lwjgl.version>3.3.3</lwjgl.version>
         <joml.version>1.10.5</joml.version>
         <lwjgl3-awt.version>0.1.8</lwjgl3-awt.version>
-        
-            <maven.compiler.source>17</maven.compiler.source>
-            <maven.compiler.target>1.8</maven.compiler.target>
-        
+
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+
     </properties>
 
     <profiles>
@@ -158,6 +158,14 @@
     </dependencyManagement>
 
     <dependencies>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson</groupId>
+            <artifactId>jackson-base</artifactId>
+            <version>2.16.1</version>
+            <type>pom</type>
+        </dependency>
+
         <dependency>
             <groupId>org.lwjgl</groupId>
             <artifactId>lwjgl</artifactId>
@@ -267,5 +275,13 @@
             <artifactId>dominion-ecs-engine</artifactId>
             <version>0.9.0</version>
         </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.jspecify/jspecify -->
+        <dependency>
+            <groupId>org.jspecify</groupId>
+            <artifactId>jspecify</artifactId>
+            <version>0.3.0</version>
+        </dependency>
+
     </dependencies>
 </project>

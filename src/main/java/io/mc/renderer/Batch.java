@@ -1,5 +1,16 @@
 package io.mc.renderer;
 
-public class Batch {
-    
+import java.util.List;
+public class Batch<R> {
+
+
+    public int numVertices;
+    public List<Integer> textureGraphicsIds;
+
+    public void flush() {
+    }
+
+    public static Object textureIndices() {
+        return null;
+    }
 }
