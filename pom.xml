@@ -3,8 +3,14 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>io.mc</groupId>
-    <artifactId>stream-minecraft-clone</artifactId>
+    <artifactId>minecraft-parent</artifactId>
     <version>0.0.1-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <modules>
+        <module>StreamingMinecraftClone</module>
+        <module>SMinimalExamples</module>
+    </modules>
 
     <properties>
         <lwjgl.version>3.3.3</lwjgl.version>
@@ -281,6 +287,12 @@
             <groupId>org.jspecify</groupId>
             <artifactId>jspecify</artifactId>
             <version>0.3.0</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.l33tlabs.twl/pngdecoder -->
+        <dependency>
+            <groupId>org.l33tlabs.twl</groupId>
+            <artifactId>pngdecoder</artifactId>
+            <version>1.0</version>
         </dependency>
 
     </dependencies>

@@ -25,10 +25,16 @@ import dev.dominion.ecs.api.Dominion;
 import io.mc.gui.Gui;
 import io.mc.input.Input;
 import io.mc.physics.Physics;
+import io.mc.renderer.ByteFormat;
+import io.mc.renderer.FilterMode;
 import io.mc.renderer.FrameBuffer;
 import io.mc.renderer.Renderer;
 import io.mc.renderer.Shader;
 import io.mc.renderer.Sprites;
+import io.mc.renderer.Texture;
+import io.mc.renderer.TextureType;
+import io.mc.renderer.WrapMode;
+import io.mc.renderer.FrameBuffer.FramebufferBuilder;
 
 public class Application {
 
@@ -36,7 +42,7 @@ public class Application {
 
     public static float deltaTime = 0.16f;
 
-    private static FrameBuffer frameBuffer;
+    // private static FrameBuffer frameBuffer = null;
     private static FrameBuffer mainFramebuffer;
     private static boolean dumpScreenshot = false;
     private static boolean screenshotMustBeSquare = false;
@@ -52,8 +58,8 @@ public class Application {
     private static final Logger logger = Logger.getLogger(Application.class.getName());
 
     public static void init() {
-        Application.window = Window.create("Minecraft");
         Window.init();
+        Application.window = Window.create("Minecraft");
 
         if (Window.windowPtr == NULL) {
             logger.severe("Error: Could not create window");
@@ -70,7 +76,44 @@ public class Application {
 
         // Allocate some GPU memory for basic geometry VAOs
         Vertices.init();
-        
+
+        final Texture opaqueTextureSpec = new Texture();
+        opaqueTextureSpec.type = TextureType.TWO_D;
+        opaqueTextureSpec.width = window.width;
+        opaqueTextureSpec.height = window.height;
+        opaqueTextureSpec.magFilter = FilterMode.Linear;
+        opaqueTextureSpec.minFilter = FilterMode.Linear;
+        opaqueTextureSpec.wrapS = WrapMode.None;
+        opaqueTextureSpec.wrapT = WrapMode.None;
+        opaqueTextureSpec.format = ByteFormat.RGBA_16F;
+        opaqueTextureSpec.path = "";
+
+        final Texture accumulationTextureSpec = new Texture();
+        accumulationTextureSpec.type = TextureType.TWO_D;
+        accumulationTextureSpec.width = window.width;
+        accumulationTextureSpec.height = window.height;
+        accumulationTextureSpec.magFilter = FilterMode.Linear;
+        accumulationTextureSpec.minFilter = FilterMode.Linear;
+        accumulationTextureSpec.wrapS = WrapMode.None;
+        accumulationTextureSpec.wrapT = WrapMode.None;
+        accumulationTextureSpec.format = ByteFormat.RGBA_16F;
+        accumulationTextureSpec.path = "";
+
+        final Texture revealTextureSpec = new Texture();
+        revealTextureSpec.type = TextureType.TWO_D;
+        revealTextureSpec.width = window.width;
+        revealTextureSpec.height = window.height;
+        revealTextureSpec.magFilter = FilterMode.Linear;
+        revealTextureSpec.minFilter = FilterMode.Linear;
+        revealTextureSpec.wrapS = WrapMode.None;
+        revealTextureSpec.wrapT = WrapMode.None;
+        revealTextureSpec.format = ByteFormat.R8_F;
+        revealTextureSpec.path = "";
+
+        mainFramebuffer = new FramebufferBuilder(window.width, window.height).addColorAttachment(opaqueTextureSpec)
+                .addColorAttachment(accumulationTextureSpec).addColorAttachment(revealTextureSpec)
+                .includeDepthStencilBuffer()
+                .generate();
         // screenShader.compile("assets/shaders/MainFramebuffer.glsl");
     }
 
@@ -100,7 +143,7 @@ public class Application {
                 final int[] mainDrawBuffer = { GL_COLOR_ATTACHMENT0, GL_NONE, GL_NONE };
                 glDrawBuffers(mainDrawBuffer);
 
-                final float zeroFillerVec[] = { 0.0f, 0.0f, 0.0f, 1.0f };
+                final float[] zeroFillerVec = { 0.0f, 0.0f, 0.0f, 1.0f };
                 glClearBufferfv(GL11.GL_COLOR, 0, zeroFillerVec);
                 float one = 1;
                 glClearBufferfv(GL_DEPTH, 0, FloatBuffer.allocate(3));
@@ -201,7 +244,7 @@ public class Application {
     }
 
     public static FrameBuffer getMainFramebuffer() {
-        return frameBuffer;
+        return mainFramebuffer;
     }
 
     public static Executor getGlobalThreadPool() {

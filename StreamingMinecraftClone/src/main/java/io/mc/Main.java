@@ -8,6 +8,4 @@ public interface Main {
         application.init();
         application.run();
     }
-
-    
 }
