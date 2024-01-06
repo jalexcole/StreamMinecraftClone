@@ -62,4 +62,11 @@ public class World {
     public static Object getLocalPlayer() {
         return null;
     }
+
+    @Override
+    public String toString() {
+        return "World []";
+    }
+
+    
 }

@@ -169,4 +169,202 @@ public class Renderer {
     public static void drawFilledSquare2D(Vector2f buttonPosition, Vector2f buttonSize, Style guiStyle) {
     }
 
+    /**
+     * @return the batches2d
+     */
+    public static List<Object> getBatches2d() {
+        return batches2d;
+    }
+
+    /**
+     * @param batches2d the batches2d to set
+     */
+    public static void setBatches2d(List<Object> batches2d) {
+        Renderer.batches2d = batches2d;
+    }
+
+    /**
+     * @return the shader2D
+     */
+    public static Shader getShader2D() {
+        return shader2D;
+    }
+
+    /**
+     * @param shader2d the shader2D to set
+     */
+    public static void setShader2D(Shader shader2d) {
+        shader2D = shader2d;
+    }
+
+    /**
+     * @return the line3DShader
+     */
+    public static Shader getLine3DShader() {
+        return line3DShader;
+    }
+
+    /**
+     * @param line3dShader the line3DShader to set
+     */
+    public static void setLine3DShader(Shader line3dShader) {
+        line3DShader = line3dShader;
+    }
+
+    /**
+     * @return the regular3DShader
+     */
+    public static Shader getRegular3DShader() {
+        return regular3DShader;
+    }
+
+    /**
+     * @param regular3dShader the regular3DShader to set
+     */
+    public static void setRegular3DShader(Shader regular3dShader) {
+        regular3DShader = regular3dShader;
+    }
+
+    /**
+     * @return the batch3DVoxelsShader
+     */
+    public static Shader getBatch3DVoxelsShader() {
+        return batch3DVoxelsShader;
+    }
+
+    /**
+     * @param batch3dVoxelsShader the batch3DVoxelsShader to set
+     */
+    public static void setBatch3DVoxelsShader(Shader batch3dVoxelsShader) {
+        batch3DVoxelsShader = batch3dVoxelsShader;
+    }
+
+    /**
+     * @return the registry
+     */
+    public static Dominion getRegistry() {
+        return registry;
+    }
+
+    /**
+     * @param registry the registry to set
+     */
+    public static void setRegistry(Dominion registry) {
+        Renderer.registry = registry;
+    }
+
+    /**
+     * @return the camera
+     */
+    public static Camera getCamera() {
+        return camera;
+    }
+
+    /**
+     * @param camera the camera to set
+     */
+    public static void setCamera(Camera camera) {
+        Renderer.camera = camera;
+    }
+
+    /**
+     * @return the cameraFrustum
+     */
+    public static Frustum getCameraFrustum() {
+        return cameraFrustum;
+    }
+
+    /**
+     * @param cameraFrustum the cameraFrustum to set
+     */
+    public static void setCameraFrustum(Frustum cameraFrustum) {
+        Renderer.cameraFrustum = cameraFrustum;
+    }
+
+    /**
+     * @return the batches2D
+     */
+    public static Batch<RenderVertex2D>[] getBatches2D() {
+        return batches2D;
+    }
+
+    /**
+     * @param batches2d the batches2D to set
+     */
+    public static void setBatches2D(Batch<RenderVertex2D>[] batches2d) {
+        batches2D = batches2d;
+    }
+
+    /**
+     * @return the batch3DVoxels
+     */
+    public static Batch getBatch3DVoxels() {
+        return batch3DVoxels;
+    }
+
+    /**
+     * @param batch3dVoxels the batch3DVoxels to set
+     */
+    public static void setBatch3DVoxels(Batch batch3dVoxels) {
+        batch3DVoxels = batch3dVoxels;
+    }
+
+    /**
+     * @return the batch3DRegular
+     */
+    public static Batch<Object> getBatch3DRegular() {
+        return batch3DRegular;
+    }
+
+    /**
+     * @param batch3dRegular the batch3DRegular to set
+     */
+    public static void setBatch3DRegular(Batch<Object> batch3dRegular) {
+        batch3DRegular = batch3dRegular;
+    }
+
+    /**
+     * @return the batch3DLines
+     */
+    public Batch<Object> getBatch3DLines() {
+        return batch3DLines;
+    }
+
+    /**
+     * @param batch3dLines the batch3DLines to set
+     */
+    public void setBatch3DLines(Batch<Object> batch3dLines) {
+        batch3DLines = batch3dLines;
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((batch3DLines == null) ? 0 : batch3DLines.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (!(obj instanceof Renderer))
+            return false;
+        Renderer other = (Renderer) obj;
+        if (batch3DLines == null) {
+            if (other.batch3DLines != null)
+                return false;
+        } else if (!batch3DLines.equals(other.batch3DLines))
+            return false;
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        return "Renderer [batch3DLines=" + batch3DLines + "]";
+    }
+
+    
+
 }

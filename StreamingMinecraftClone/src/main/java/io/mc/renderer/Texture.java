@@ -6,6 +6,7 @@ import static org.lwjgl.opengl.GL11.glDeleteTextures;
 import static org.lwjgl.opengl.GL11.glGenTextures;
 
 import java.nio.IntBuffer;
+import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -210,5 +211,72 @@ public class Texture {
 
     }
 
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + graphicsId;
+        result = prime * result + width;
+        result = prime * result + height;
+        result = prime * result + ((format == null) ? 0 : format.hashCode());
+        result = prime * result + ((path == null) ? 0 : path.hashCode());
+        result = prime * result + ((type == null) ? 0 : type.hashCode());
+        result = prime * result + ((magFilter == null) ? 0 : magFilter.hashCode());
+        result = prime * result + ((wrapS == null) ? 0 : wrapS.hashCode());
+        result = prime * result + ((wrapT == null) ? 0 : wrapT.hashCode());
+        result = prime * result + ((minFilter == null) ? 0 : minFilter.hashCode());
+        result = prime * result + Arrays.hashCode(swizzleFormat);
+        result = prime * result + (generateMipmap ? 1231 : 1237);
+        result = prime * result + (generateMipmapFromFile ? 1231 : 1237);
+        return result;
+    }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (!(obj instanceof Texture))
+            return false;
+        Texture other = (Texture) obj;
+        if (graphicsId != other.graphicsId)
+            return false;
+        if (width != other.width)
+            return false;
+        if (height != other.height)
+            return false;
+        if (format != other.format)
+            return false;
+        if (path == null) {
+            if (other.path != null)
+                return false;
+        } else if (!path.equals(other.path))
+            return false;
+        if (type != other.type)
+            return false;
+        if (magFilter != other.magFilter)
+            return false;
+        if (wrapS != other.wrapS)
+            return false;
+        if (wrapT != other.wrapT)
+            return false;
+        if (minFilter != other.minFilter)
+            return false;
+        if (!Arrays.equals(swizzleFormat, other.swizzleFormat))
+            return false;
+        if (generateMipmap != other.generateMipmap)
+            return false;
+        if (generateMipmapFromFile != other.generateMipmapFromFile)
+            return false;
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        return "Texture [graphicsId=" + graphicsId + ", width=" + width + ", height=" + height + ", format=" + format
+                + ", path=" + path + ", type=" + type + ", magFilter=" + magFilter + ", wrapS=" + wrapS + ", wrapT="
+                + wrapT + ", minFilter=" + minFilter + ", swizzleFormat=" + Arrays.toString(swizzleFormat)
+                + ", generateMipmap=" + generateMipmap + ", generateMipmapFromFile=" + generateMipmapFromFile + "]";
+    }
+
+    
 }

@@ -81,14 +81,3 @@ public class Chunk implements Serializable {
 
     
 }
-
-
-
-enum ChunkState {
-    None,
-    Unloaded,
-    Unloading,
-    Saving,
-    Loading,
-    Loaded
-}

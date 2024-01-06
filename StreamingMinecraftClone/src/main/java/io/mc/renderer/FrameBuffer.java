@@ -149,8 +149,186 @@ public class FrameBuffer {
             return this;
         }
 
-
-
     }
+
+    /**
+     * @return the fbo
+     */
+    public int getFbo() {
+        return fbo;
+    }
+
+
+
+    /**
+     * @param fbo the fbo to set
+     */
+    public void setFbo(int fbo) {
+        this.fbo = fbo;
+    }
+
+
+
+    /**
+     * @return the width
+     */
+    public int getWidth() {
+        return width;
+    }
+
+
+
+    /**
+     * @param width the width to set
+     */
+    public void setWidth(int width) {
+        this.width = width;
+    }
+
+
+
+    /**
+     * @return the height
+     */
+    public int getHeight() {
+        return height;
+    }
+
+
+
+    /**
+     * @param height the height to set
+     */
+    public void setHeight(int height) {
+        this.height = height;
+    }
+
+
+
+    /**
+     * @return the rbo
+     */
+    public int getRbo() {
+        return rbo;
+    }
+
+
+
+    /**
+     * @param rbo the rbo to set
+     */
+    public void setRbo(int rbo) {
+        this.rbo = rbo;
+    }
+
+
+
+    /**
+     * @return the depthStencilFormat
+     */
+    public ByteFormat getDepthStencilFormat() {
+        return depthStencilFormat;
+    }
+
+
+
+    /**
+     * @param depthStencilFormat the depthStencilFormat to set
+     */
+    public void setDepthStencilFormat(ByteFormat depthStencilFormat) {
+        this.depthStencilFormat = depthStencilFormat;
+    }
+
+
+
+    /**
+     * @return the includeDepthStencil
+     */
+    public boolean isIncludeDepthStencil() {
+        return includeDepthStencil;
+    }
+
+
+
+    /**
+     * @param includeDepthStencil the includeDepthStencil to set
+     */
+    public void setIncludeDepthStencil(boolean includeDepthStencil) {
+        this.includeDepthStencil = includeDepthStencil;
+    }
+
+
+
+    /**
+     * @return the colorAttachments
+     */
+    public List<Texture> getColorAttachments() {
+        return colorAttachments;
+    }
+
+
+
+    /**
+     * @param colorAttachments the colorAttachments to set
+     */
+    public void setColorAttachments(List<Texture> colorAttachments) {
+        this.colorAttachments = colorAttachments;
+    }
+
+
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + fbo;
+        result = prime * result + width;
+        result = prime * result + height;
+        result = prime * result + rbo;
+        result = prime * result + ((depthStencilFormat == null) ? 0 : depthStencilFormat.hashCode());
+        result = prime * result + (includeDepthStencil ? 1231 : 1237);
+        result = prime * result + ((colorAttachments == null) ? 0 : colorAttachments.hashCode());
+        return result;
+    }
+
+
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (!(obj instanceof FrameBuffer))
+            return false;
+        FrameBuffer other = (FrameBuffer) obj;
+        if (fbo != other.fbo)
+            return false;
+        if (width != other.width)
+            return false;
+        if (height != other.height)
+            return false;
+        if (rbo != other.rbo)
+            return false;
+        if (depthStencilFormat != other.depthStencilFormat)
+            return false;
+        if (includeDepthStencil != other.includeDepthStencil)
+            return false;
+        if (colorAttachments == null) {
+            if (other.colorAttachments != null)
+                return false;
+        } else if (!colorAttachments.equals(other.colorAttachments))
+            return false;
+        return true;
+    }
+
+
+
+    @Override
+    public String toString() {
+        return "FrameBuffer [fbo=" + fbo + ", width=" + width + ", height=" + height + ", rbo=" + rbo
+                + ", depthStencilFormat=" + depthStencilFormat + ", includeDepthStencil=" + includeDepthStencil
+                + ", colorAttachments=" + colorAttachments + "]";
+    }
+    
+    
     
 }
