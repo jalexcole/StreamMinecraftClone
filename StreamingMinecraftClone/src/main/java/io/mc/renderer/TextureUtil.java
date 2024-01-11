@@ -21,6 +21,9 @@ import static org.lwjgl.opengl.GL11.GL_TEXTURE_WRAP_S;
 import static org.lwjgl.opengl.GL11.GL_TEXTURE_WRAP_T;
 import static org.lwjgl.opengl.GL11.GL_UNSIGNED_BYTE;
 import static org.lwjgl.opengl.GL11.GL_UNSIGNED_INT;
+import static org.lwjgl.opengl.GL11.glBindTexture;
+import static org.lwjgl.opengl.GL11.glGenTextures;
+import static org.lwjgl.opengl.GL11.glTexImage1D;
 import static org.lwjgl.opengl.GL11.glTexImage2D;
 import static org.lwjgl.opengl.GL11.glTexParameteri;
 import static org.lwjgl.opengl.GL13.GL_TEXTURE_CUBE_MAP;
@@ -54,7 +57,7 @@ public class TextureUtil {
         return GL_NONE;
     }
 
-    public static int toGl(FilterMode filterMode) {
+    public static int toGl(@NonNull FilterMode filterMode) {
         switch (filterMode) {
             case Linear:
                 return GL_LINEAR;
@@ -77,7 +80,7 @@ public class TextureUtil {
         return GL_NONE;
     }
 
-    public static int toGLExternalFormat(ByteFormat format) {
+    public static int toGLExternalFormat(@NonNull ByteFormat format) {
         switch (format) {
             case RGBA8_UI:
                 return GL_RGBA;
@@ -246,6 +249,46 @@ public class TextureUtil {
     }
 
     public static void generateEmptyTexture(Texture texture) {
+        if (texture.format == ByteFormat.None) {
+            logger.warning("Cannot generate texture without color format.");
+        }
+
+        glGenTextures(new int[] { texture.graphicsId });
+        glBindTexture(GL_TEXTURE_2D, texture.graphicsId);
+
+        bindTextureParameters(texture);
+
+        int internalFormat = TextureUtil.toGlSizedInternalFormat(texture.format);
+        int externalFormat = TextureUtil.toGlExternalFormat(texture.format);
+        int dataType = TextureUtil.toGlDataType(texture.format);
+        int textureType = TextureUtil.toGlType(texture.type);
+
+        // Here the GL_UNSIGNED_BYTE does nothing since we are just allocating space
+			switch (texture.type)
+			{
+			case ONE_D:
+				glTexImage1D(textureType, 0, internalFormat, texture.width, 0, externalFormat, dataType, ByteBuffer.allocate(0));
+				break;
+			case TWO_D:
+				glTexImage2D(textureType, 0, internalFormat, texture.width, texture.height, 0, externalFormat, dataType, ByteBuffer.allocate(texture.width * texture.height));
+				break;
+			case _CUBEMAP_NEGATIVE_X:
+			case _CUBEMAP_POSITIVE_X:
+			case _CUBEMAP_NEGATIVE_Y:
+			case _CUBEMAP_POSITIVE_Y:
+			case _CUBEMAP_NEGATIVE_Z:
+            case _CUBEMAP_POSITIVE_Z:
+                
+				glTexImage2D(textureType, 0, internalFormat, texture.width, texture.height, 0, externalFormat, dataType, ByteBuffer.allocate(texture.width * texture.height));
+				break;
+			default:
+				logger.severe("Invalid texture type '%d'." + texture.type);
+			}
+    }
+
+
+    private static int toGlDateType(ByteFormat format) {
+        return 0;
     }
 
     public static int toGlType(TextureType type) {
@@ -268,6 +311,28 @@ public class TextureUtil {
 
         logger.warning("Unknown texture type.");
         return GL_NONE;
+    }
+
+    public static boolean byteFromatIsInt(final Texture texture) {
+        switch (texture.format) {
+            case RGBA8_UI:
+                return false;
+            case RGB8_UI:
+                return false;
+            case R32_UI:
+                return true;
+            case R8_UI:
+                return true;
+            case ALPHA_F:
+                return false;
+            case None:
+                return false;
+            default:
+                logger.warning("Unknown glByteFormat '%d'" + texture.format);
+                return false;
+        }
+
+        // return false;
     }
 
     public static int toGlDataType(ByteFormat format) {

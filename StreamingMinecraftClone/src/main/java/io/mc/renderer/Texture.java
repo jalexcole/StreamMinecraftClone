@@ -1,9 +1,13 @@
 package io.mc.renderer;
 
 import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
+import static org.lwjgl.opengl.GL11.GL_TEXTURE_MAG_FILTER;
+import static org.lwjgl.opengl.GL11.GL_TEXTURE_WRAP_S;
+import static org.lwjgl.opengl.GL11.GL_TEXTURE_WRAP_T;
 import static org.lwjgl.opengl.GL11.glBindTexture;
 import static org.lwjgl.opengl.GL11.glDeleteTextures;
 import static org.lwjgl.opengl.GL11.glGenTextures;
+import static org.lwjgl.opengl.GL11.glTexParameteri;
 
 import java.nio.IntBuffer;
 import java.util.Arrays;
@@ -70,6 +74,26 @@ public class Texture {
                 break;
 
         }
+    }
+
+    private static void bindTextureParameters(@NonNull final Texture texture) {
+        int type = TextureUtil.toGlType(texture.type);
+
+        if (texture.wrapS != WrapMode.None) {
+            glTexParameteri(type, GL_TEXTURE_WRAP_S, TextureUtil.toGl(texture.wrapS));
+        }
+        if (texture.wrapT != WrapMode.None)
+		{
+			glTexParameteri(type, GL_TEXTURE_WRAP_T, TextureUtil.toGl(texture.wrapT));
+		}
+		if (texture.minFilter != FilterMode.None)
+		{
+			glTexParameteri(type, GL11.GL_TEXTURE_MIN_FILTER, TextureUtil.toGl(texture.minFilter));
+		}
+		if (texture.magFilter != FilterMode.None)
+		{
+			glTexParameteri(type, GL_TEXTURE_MAG_FILTER, TextureUtil.toGl(texture.magFilter));
+		}
     }
 
     public boolean isNull() {

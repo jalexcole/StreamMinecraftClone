@@ -45,7 +45,9 @@ public class FrameBuffer {
         internalGenerate(this);
     }
     
-
+    public static void clearColorAttachmentUint32(int colorAttachment, int clearColor) {
+        // Texture texture = colorAttachments.get(colorAttachment);
+    }
 
     private void destroy(boolean clearColorAttchmentSpecs) {
         glDeleteFramebuffers(fbo);
@@ -111,7 +113,7 @@ public class FrameBuffer {
         destroy(false);
     }
 
-    public Texture getColorAttachment(final int index) {
+    public final Texture getColorAttachment(final int index) {
 
         return colorAttachments.get(index);
     }
