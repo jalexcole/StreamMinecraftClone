@@ -108,7 +108,7 @@ public class CubeMap {
 //        back.destroy();
 //    }
     public static void destroy() {
-
+        // glDeleteBuffers(vbo)
     }
 //
 //    Cubemap Cubemap::generateCubemap(

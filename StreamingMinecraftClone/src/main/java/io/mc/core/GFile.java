@@ -10,7 +10,6 @@ import java.util.logging.Logger;
 
 import org.jspecify.annotations.NonNull;
 
-
 /**
  * An abstraction of Gabes File namespace with associated functions
  */
@@ -19,14 +18,20 @@ public class GFile {
     private static final Logger logger = Logger.getLogger(GFile.class.getName());
 
     public static boolean removeDir(@NonNull String directoryName) {
-        return false;
+        try {
+            return Files.deleteIfExists(Paths.get(directoryName));
+        } catch (IOException e) {
+            logger.log(Level.WARNING, e.getMessage(), e.getCause());
+            return false;
+        }
+        
     }
 
     public static boolean isDir(@NonNull String directoryName) {
         File file = new File(directoryName);
 
         return file.isDirectory();
-        
+
     }
 
     public static boolean isFile(@NonNull String directoryName) {
@@ -36,7 +41,6 @@ public class GFile {
 
     public static boolean moveFile(@NonNull String from, String to) {
         Path pathFrom = Paths.get(from);
-        
 
         if (!pathFrom.toFile().exists()) {
             return false;
@@ -54,11 +58,12 @@ public class GFile {
     }
 
     public static boolean createDirIfNotExists(@NonNull String directoryName) {
-        return false;
+        var dir = Paths.get(directoryName);
+        return dir.toFile().mkdir();
     }
 
     public static String getSpecialAppFolder() {
-        
+
         return "";
     }
 
@@ -69,5 +74,5 @@ public class GFile {
         fileTime.lastWrite = file.lastModified();
         return fileTime;
     }
-    
+
 }

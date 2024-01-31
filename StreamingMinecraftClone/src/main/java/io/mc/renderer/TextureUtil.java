@@ -39,6 +39,8 @@ import java.util.logging.Logger;
 
 import org.jspecify.annotations.NonNull;
 
+import io.mc.core.GFile;
+
 public class TextureUtil {
 
     private static final Logger logger = Logger.getLogger(TextureUtil.class.getName());
@@ -109,8 +111,8 @@ public class TextureUtil {
         return GL_NONE;
     }
 
-    public static void generateFromFile(Texture texture) {
-        if (texture.path != "")
+    public static void generateFromFile(@NonNull Texture texture) {
+        if (texture.path.isEmpty())
             logger.severe("Cannot generate texture from file without a filepath provided.");
         int channels = 0;
 
@@ -163,11 +165,11 @@ public class TextureUtil {
             for (int i = 0; i < 40; i++) {
                 String mipFile = (texture.path) + ".mip." + (i + 1) + ".png";
 
-                if (new File(mipFile).exists()) {
+                if (!GFile.isFile(mipFile)) {
                     break;
                 }
 
-                // int width, height;
+                int width, height;
                 // ByteBuffer mipPixels = stbi_load(texture.path, width, height, channels, 0);
                 // glTexImage2D(textureType, i + 1, internalFormat, width, height, 0, externalFormat, GL_UNSIGNED_BYTE,
                 //         mipPixels);

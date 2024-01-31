@@ -10,13 +10,13 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import org.lwjgl.opengl.GL;
+
 public class Batch<T> {
 
     public static final Logger logger = Logger.getLogger(Batch.class.getName());
 
     public static final int maxBatchSize = 501;
     public static final int numTextureGraphicsIds = 16;
-
 
     int vao;
     int vbo;
@@ -39,7 +39,6 @@ public class Batch<T> {
             return;
         }
 
-        
     }
 
     public void flush() {
