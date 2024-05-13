@@ -38,6 +38,11 @@ pub struct BoxCollider {
     size: Vector3<f32>,
     offset: Vector3<f32>,
 }
+impl Default for  BoxCollider {
+    fn default() -> Self {
+        todo!()
+    }
+}
 
 pub enum CollisionFace {
     NONE = 0,
@@ -56,7 +61,7 @@ struct Interval {
 
 impl Interval {
     fn default() -> Interval {
-        Interval {min: 0.0,max:  0.0}
+        Interval { min: 0.0, max: 0.0 }
     }
 }
 
@@ -69,8 +74,10 @@ struct CollisionManifold {
 pub mod Physics {
     use std::ops::Add;
     use std::ops::Mul;
+    use std::sync::Mutex;
 
     use crate::ecs::Transform;
+    use crate::physics;
 
     use super::BoxCollider;
     use super::CollisionFace;
@@ -97,12 +104,21 @@ pub mod Physics {
 
     fn update(registry: shipyard::World) {
         //    {static mut accumulated_delta_time: Lazy<f32> = Lazy::new(0.0);
+        static accumulated_delta_time: Mutex<f32> = Mutex::new(0.0);
+
+        *accumulated_delta_time.lock().unwrap() += 1.0;
+
+        let num_updates = 0;
+
+        while *accumulated_delta_time.lock().unwrap() >= PHYSICS_UPDATE_RATE {
+            *accumulated_delta_time.lock().unwrap() -= PHYSICS_UPDATE_RATE;
+        }
 
         //     // accumulated_delta_time = 0.0;
         //     }
     }
 
-    fn raycastStatic(
+    fn raycast_static(
         origin: &Vector3<f32>,
         normal_direction: &Vector3<f32>,
         max_distance: f32,
@@ -123,6 +139,22 @@ pub mod Physics {
         let ray_end = origin.add(normal_direction.mul(max_distance));
 
         todo!()
+    }
+
+    fn do_raycast(origin: glm::Vec3, normal_direction: &Vector3<f32>, max_distance: f32, draw: bool, block_corner: &Vector3<f32>, step: Vector3<f32>, out: &RaycastStaticResult) {
+        let block_center: glm::Vec3 = *block_corner - glm::vec3(0.5, 0.5, 0.5) * step;
+
+        if draw {
+
+        }
+
+        {
+            let mut current_box = BoxCollider::default();
+            current_box.offset = glm::vec3(0.0, 0.0, 0.0);
+            current_box.size = glm::vec3(1.0, 1.0, 1.0);
+
+            let current_transform = Transform::default();
+        }
     }
 
     fn resolve_static_collision() {}
@@ -200,9 +232,7 @@ pub mod Physics {
         let result = Interval::default();
         // let dot_product = axis.dot( &vertices[0]);
 
-        for vertex in vertices {
-            
-        }
+        for vertex in vertices {}
 
         todo!()
     }

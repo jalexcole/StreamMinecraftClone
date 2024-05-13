@@ -25,9 +25,9 @@ public class Gui {
     private static Style guiStyle;
     private static Vector2f elementPadding = new Vector2f();
     private static Font defaultFont = new Font();
-    private static float defaultTextScale = 0;
+    private static float defaultTextScale = 0.0f;
 
-    private static final float keyHoldDelayTime = 0.0f;
+    private static final float keyHoldDelayTime = 0.05f;
 
     public static void init() {
         guiStyle = Styles.defaultStyle;

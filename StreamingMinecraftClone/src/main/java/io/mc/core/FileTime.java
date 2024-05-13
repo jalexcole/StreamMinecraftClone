@@ -14,6 +14,7 @@ public class FileTime {
         result = prime * result + (int) (lastAccess ^ (lastAccess >>> 32));
         return result;
     }
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj)
@@ -29,12 +30,10 @@ public class FileTime {
             return false;
         return true;
     }
-    
+
     @Override
     public String toString() {
         return "FileTime [creation=" + creation + ", lastWrite=" + lastWrite + ", lastAccess=" + lastAccess + "]";
     }
 
-    
-    
 }

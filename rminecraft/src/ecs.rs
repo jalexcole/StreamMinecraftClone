@@ -1,4 +1,4 @@
-use glm::Vector3;
+use glm::{vec3, Vector3};
 
 pub enum TagType {
     None,
@@ -17,4 +17,16 @@ pub struct Transform {
     forward: Vector3<f32>,
     up: Vector3<f32>,
     gright: Vector3<f32>,
+}
+impl Default for Transform {
+    fn default() -> Self {
+        Transform {
+            position: vec3(0.0, 0.0, 0.0),
+            scale: todo!(),
+            orientation: todo!(),
+            forward: todo!(),
+            up: todo!(),
+            gright: todo!(),
+        }
+    }
 }
