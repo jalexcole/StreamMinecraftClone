@@ -3,6 +3,8 @@ package io.mc.renderer;
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
+import org.joml.Vector4f;
+import org.jspecify.annotations.NonNull;
 
 import dev.dominion.ecs.api.Dominion;
 import io.mc.core.Application;
@@ -12,6 +14,7 @@ import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
 
 import java.util.List;
+import java.util.logging.Logger;
 
 public class Renderer {
 
@@ -27,13 +30,32 @@ public class Renderer {
     private static Batch<RenderVertex2D>[] batches2D;
     private static Batch batch3DVoxels;
     private static Batch<Object> batch3DRegular;
-    private Batch<Object> batch3DLines;
+    private static Batch<RenderVertexLine> batch3DLines = new Batch<>();
 
-    public static void init(Dominion registry) {
+    private static final Logger logger = Logger.getLogger(Renderer.class.getName());
 
+    public static void init(@NonNull Dominion sceneRegistry) {
+        Renderer.registry = sceneRegistry;
+        camera = null;
+        batch3DLines.numVertices = 0;
+
+        // Enable render parameters
+        GL11.glEnable(GL11.GL_DEPTH_TEST);
+        GL11.glEnable(GL11.GL_CULL_FACE);
+        GL11.glCullFace(GL11.GL_BACK);
+        GL11.glEnable(GL11.GL_BLEND);
+        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+
+        shader2D.compile("assets/shaders/DebugShader2D.glsl");
+        line3DShader.compile("assets/shaders/DebugShader3D.glsl");
+        regular3DShader.compile("assets/shaders/RegularShader3D.glsl");
+        batch3DVoxelsShader.compile("assets/shaders/VoxelShader.glsl");
     }
 
     public static void render() {
+        flushBatches3D();
+        flushBatches2D();
+        flushVoxelBatches();
     }
 
     public static void reloadShaders() {
@@ -48,12 +70,106 @@ public class Renderer {
     }
 
     public static void free() {
+        for (Batch<RenderVertex2D> batch2D : batches2D) {
+            batch2D.free();
+        }
+        batch3DLines.free();
+        batch3DRegular.free();
+        batch3DVoxels.free();
+
+        shader2D.destroy();
+        line3DShader.destroy();
+        regular3DShader.destroy();
+        batch3DVoxelsShader.destroy();
     }
 
-    public static void drawLine(Vector3f origin, Vector3f vector3f, Style red) {
+    public static void drawLine(Vector3f start, Vector3f end, Style style) {
+        if (batch3DLines.numVertices + 6 >= Batch.maxBatchSize) {
+            flushBatches3D();
+        }
+
+        // First triangle
+        RenderVertexLine v = new RenderVertexLine();
+        v.isStart = 1.0f;
+        v.start = start;
+        v.end = end;
+        v.direction = -1.0f;
+        // FIXME: v.color = style.color;
+        v.strokeWidth = style.strokeWidth;
+        batch3DLines.addVertex(v);
+
+        v.isStart = 1.0f;
+        v.start = start;
+        v.end = end;
+        v.direction = 1.0f;
+        // FIXME: v.color = style.color;
+        v.strokeWidth = style.strokeWidth;
+        batch3DLines.addVertex(v);
+
+        v.isStart = 0.0f;
+        v.start = start;
+        v.end = end;
+        v.direction = 1.0f;
+        // FIXME: v.color = style.color;
+        v.strokeWidth = style.strokeWidth;
+        batch3DLines.addVertex(v);
+
+        // Second triangle
+        v.isStart = 1.0f;
+        v.start = start;
+        v.end = end;
+        v.direction = -1.0f;
+        // FIXME: v.color = style.color;
+        v.strokeWidth = style.strokeWidth;
+        batch3DLines.addVertex(v);
+
+        v.isStart = 0.0f;
+        v.start = start;
+        v.end = end;
+        v.direction = 1.0f;
+        // FIXME: v.color = style.color;
+        v.strokeWidth = style.strokeWidth;
+        batch3DLines.addVertex(v);
+
+        v.isStart = 0.0f;
+        v.start = start;
+        v.end = end;
+        v.direction = -1.0f;
+        // FIXME: v.color = style.color;
+        v.strokeWidth = style.strokeWidth;
+        batch3DLines.addVertex(v);
     }
 
-    public static void drawBox(Vector3f blockCenter, Vector3f vector3f, Style defaultstyle) {
+    public static void drawBox(Vector3f center, Vector3f size, Style style) {
+        // TODO: Do this in a better way... Maybe do sphere check before expensive box check
+			if (!cameraFrustum.isBoxVisible(center.sub(size.mul(0.5f), center.add(size.mul(0.5f))))) {
+				return;
+			}
+
+			Vector3f v0 = center.sub(size.mul(0.5f));
+			Vector3f v1 = v0.add(new Vector3f(size.x, 0, 0));
+			Vector3f v2 = v0.add(new Vector3f(0, 0, size.z));
+			Vector3f v3 = v0.add(new Vector3f(size.x, 0, size.z));
+
+			Vector3f v4 = v0.add(new Vector3f(0, size.y, 0));
+			Vector3f v5 = v1.add(new Vector3f(0, size.y, 0));
+			Vector3f v6 = v2.add(new Vector3f(0, size.y, 0));
+			Vector3f v7 = v3.add(new Vector3f(0, size.y, 0));
+
+			drawLine(v0, v1, style);
+			drawLine(v0, v2, style);
+			drawLine(v2, v3, style);
+			drawLine(v1, v3, style);
+
+			drawLine(v4, v5, style);
+			drawLine(v4, v6, style);
+			drawLine(v5, v7, style);
+			drawLine(v6, v7, style);
+
+			drawLine(v0, v4, style);
+			drawLine(v1, v5, style);
+			drawLine(v2, v6, style);
+			drawLine(v3, v7, style);
     }
 
     private static void flushBatches2D() {
@@ -75,22 +191,24 @@ public class Renderer {
 
             for (int i = 0; i < batch2D.textureGraphicsIds.size(); i++) {
                 if (batch2D.textureGraphicsIds.get(i) != Integer.MAX_VALUE) {
-                    //GL30.glBindTextureUnit(i, batch2D.textureGraphicsIds.get(i).intValue());
+                    // GL30.glBindTextureUnit(i, batch2D.textureGraphicsIds.get(i).intValue());
                 }
             }
-            // shader2D.uploadIntArray("uFontTextures[0]", 8, Batch.textureIndices().data());
-            // shader2D.uploadIntArray("uTextures[0]", 8, Batch.textureIndices().data() + 8);
+            // shader2D.uploadIntArray("uFontTextures[0]", 8,
+            // Batch.textureIndices().data());
+            // shader2D.uploadIntArray("uTextures[0]", 8, Batch.textureIndices().data() +
+            // 8);
             // shader2D.uploadInt("uZIndex", batch2D.zIndex);
 
             batch2D.flush();
 
-            //            DebugStats::numDrawCalls++;
+            // DebugStats::numDrawCalls++;
         }
 
         GL11.glEnable(GL11.GL_CULL_FACE);
     }
 
-    void flushBatches3D() {
+    static void flushBatches3D() {
         if (batch3DLines.numVertices <= 0) {
             return;
         }
@@ -100,7 +218,8 @@ public class Renderer {
         line3DShader.bind();
         line3DShader.uploadMat4("uProjection", camera.calculateProjectionMatrix(registry));
         line3DShader.uploadMat4("uView", camera.calculateViewMatrix(registry));
-        // line3DShader.uploadFloat("uAspectRatio", Application.getWindow().getAspectRatio());
+        // line3DShader.uploadFloat("uAspectRatio",
+        // Application.getWindow().getAspectRatio());
 
         batch3DLines.flush();
 
@@ -114,7 +233,8 @@ public class Renderer {
                 // GL11.glBindTextureUnit(i, batch3DRegular.textureGraphicsIds[i]);
             }
         }
-        // regular3DShader.uploadIntArray("uTextures[0]", 16, Batch.textureIndices().data());
+        // regular3DShader.uploadIntArray("uTextures[0]", 16,
+        // Batch.textureIndices().data());
 
         batch3DRegular.flush();
 
@@ -146,7 +266,8 @@ public class Renderer {
                 // glBindTextureUnit(i, batch3DRegular.textureGraphicsIds.get(i).intValue());
             }
         }
-        // regular3DShader.uploadIntArray("uTextures[0]", 16, Batch.textureIndices().data());
+        // regular3DShader.uploadIntArray("uTextures[0]", 16,
+        // Batch.textureIndices().data());
 
         batch3DRegular.flush();
     }
@@ -326,16 +447,108 @@ public class Renderer {
     /**
      * @return the batch3DLines
      */
-    public Batch<Object> getBatch3DLines() {
+    public Batch<RenderVertexLine> getBatch3DLines() {
         return batch3DLines;
     }
 
     /**
      * @param batch3dLines the batch3DLines to set
      */
-    public void setBatch3DLines(Batch<Object> batch3dLines) {
-        batch3DLines = batch3dLines;
+    public void setBatch3DLines(Batch<RenderVertexLine> batch3dLines) {
+        Renderer.batch3DLines = batch3dLines;
     }
+
+    static void drawTexturedTriangle2D(
+			final Vector2f p0,
+			final Vector2f p1,
+			final Vector2f p2,
+			final Vector2f uv0,
+			final Vector2f uv1,
+			final Vector2f uv2,
+			final Texture texture,
+			final Style style,
+			int zIndex,
+			boolean isFont) {
+			Batch<RenderVertex2D> batch2D = getBatch2D(zIndex, texture, true, isFont);
+			if (batch2D.numVertices + 3 > Batch.maxBatchSize) {
+				batch2D = createBatch2D(zIndex, isFont);
+			}
+
+			int texSlot = batch2D.getTextureSlot(texture.graphicsId, isFont);
+
+			// One triangle per sector
+			RenderVertex2D v = new RenderVertex2D();
+			v.position = p0;
+			//v.color = style.color;
+			v.textureSlot = texSlot;
+			v.textureCoords = uv0;
+			batch2D.addVertex(v);
+
+			v.position = p1;
+			//v.color = style.color;
+			v.textureSlot = texSlot;
+			v.textureCoords = uv1;
+			batch2D.addVertex(v);
+
+			v.position = p2;
+			//v.color = style.color;
+			v.textureSlot = texSlot;
+			v.textureCoords = uv2;
+			batch2D.addVertex(v);
+		}
+
+    static void drawTexturedTriangle3D(
+            Vector4f p0,
+            Vector4f p1,
+            Vector4f p2,
+            Vector2f uv0,
+            Vector2f uv1,
+            Vector2f uv2,
+            Vector3f normal,
+            final Texture texture) {
+        if (batch3DRegular.numVertices + 3 > Batch.maxBatchSize) {
+            logger.warning("Ran out of batch room for 3D stuff!");
+            return;
+        }
+
+       //  var texSlot = batch3DRegular.getTextureSlot3D(texture.graphicsId);
+
+        // One triangle per sector
+        RenderVertex3D v = new RenderVertex3D();
+        v.position = new Vector3f(p0.x, p0.y, p0.z);
+        // v.textureSlot = texSlot;
+        v.textureCoords = uv0;
+        v.normal = normal;
+        batch3DRegular.addVertex(v);
+
+        v.position = new Vector3f(p1.x, p1.y, p1.z);
+        // v.textureSlot = texSlot;
+        v.textureCoords = uv1;
+        v.normal = normal;
+        batch3DRegular.addVertex(v);
+
+        v.position = new Vector3f(p2.x, p2.y, p2.z);
+        // v.textureSlot = texSlot;
+        v.textureCoords = uv2;
+        v.normal = normal;
+        batch3DRegular.addVertex(v);
+    }
+
+    static Batch<RenderVertex2D> getBatch2D(int zIndex, final Texture texture, boolean useTexture, boolean isFont) {
+        for (Batch<RenderVertex2D> batch2D : batches2D) {
+            if (batch2D.hasRoom() && batch2D.zIndex == zIndex &&
+                    (!useTexture || batch2D.hasTexture(texture.graphicsId) || batch2D.hasTextureRoom(isFont))) {
+                return batch2D;
+            }
+        }
+
+        return createBatch2D(zIndex, isFont);
+    }
+
+    static Batch<RenderVertex2D> createBatch2D(int zIndex, boolean isFont)
+		{
+throw new UnsupportedOperationException();
+		}
 
     @Override
     public int hashCode() {
@@ -364,7 +577,5 @@ public class Renderer {
     public String toString() {
         return "Renderer [batch3DLines=" + batch3DLines + "]";
     }
-
-    
 
 }

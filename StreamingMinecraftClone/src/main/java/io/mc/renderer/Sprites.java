@@ -11,7 +11,7 @@ public class Sprites {
 
     }
 
-    public static final Map<String, Sprites> getSpritesheet(String filepath) {
+    public static final Map<String, Sprite> getSpritesheet(String filepath) {
         var spritesheet = spritesheets.get(filepath);
         if (spritesheet == null) {
             load(filepath);

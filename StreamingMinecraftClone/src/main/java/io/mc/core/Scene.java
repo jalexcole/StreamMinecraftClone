@@ -6,13 +6,17 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.logging.Logger;
 
+import org.jspecify.annotations.NonNull;
+
 import dev.dominion.ecs.api.Dominion;
 import io.mc.gui.Gui;
 import io.mc.gui.MainMenu;
 import io.mc.renderer.Frustum;
 import io.mc.renderer.Renderer;
 import io.mc.renderer.Texture;
+import io.mc.renderer.Texture.TextureBuilder;
 import io.mc.utils.TexturePacker;
+import io.mc.world.BlockMap;
 import io.mc.world.World;
 
 public class Scene {
@@ -23,39 +27,44 @@ public class Scene {
     public static boolean playFromEventFile = false;
 
     // Internal variables
-    public static SceneType currentScene = SceneType.None;
-    public static SceneType nextSceneType = SceneType.None;
-    public static boolean changeSceneAtFrameEnd = false;
+    private static SceneType currentScene = SceneType.None;
+    private static SceneType nextSceneType = SceneType.None;
+    private static boolean changeSceneAtFrameEnd = false;
+    private static Dominion registry = null;
+    private static Texture worldTexture = null;
+    private static Texture itemTexture = null;
 
-    public static Dominion registry = null;
-    public static Texture worldTexture = null;
-    public static Texture itemTexture = null;
+    private static Texture blockItemTexture = null;
+    private static Queue<GEvent> events = new LinkedList<>();
 
-    public static Texture blockItemTexture = null;
-    public static Queue<GEvent> events = new LinkedList<>();
-
-    public static File serializedEventFile = null;
+    private static File serializedEventFile = null;
     
+    // TODO: Where does this go??
     public static Camera camera = null;
     public static Frustum frustum = null;
 
     private static boolean changedSceneAtFrameEnd;
 
     private static Frustum cameraFrustum;
-
+    
+    
     private Scene() {
 
     }
 
-    public static void init(SceneType sceneType, Dominion registry) {
+    public static void init(@NonNull final SceneType sceneType, @NonNull final Dominion registry) {
         // var file = Files.createDirectory("assets/generated", null);
 
         final String packedTecturesFilePath = "assets/generated/packedTextures.png";
         final String packedItemTextureFilePath = "assets/generated/pacledItemTexture.png";
 
         TexturePacker.packTextures("assets/image/item", "assets/generated/itemTextureFormat.yaml");
-
+        TexturePacker.packTextures("assets/images/item", "assets/generated/itemTextureFormat.yaml", packedItemTexturesFilepath, "Items");
+		BlockMap.loadBlocks("assets/generated/textureFormat.yaml", "assets/generated/itemTextureFormat.yaml", "assets/custom/blockFormats.yaml");
+		BlockMap.uploadTextureCoordinateMapToGpu();
         Scene.registry = registry;
+
+        
     }
 
     public static void update() {
@@ -111,7 +120,11 @@ public class Scene {
         }
 
     }
-
+    /**
+     * Don't change the scene immediately, instead wait til the end of the frame
+		so we don't disrupt any important simulations
+     * @param type
+     */
     public void changeScene(SceneType type) {
         Scene.changedSceneAtFrameEnd = true;
         nextSceneType = type;
@@ -140,9 +153,9 @@ public class Scene {
         }
     }
 
-    public static void queueMainEvent(GEventType type, float deltaTime, boolean freeData) {
+    public static void queueMainEvent(GEventType type, long eventData, float deltaTime, boolean freeData) {
         if (!playFromEventFile) {
-            // GEvent event = new GEvent(type, deltaTime);
+           
 
         }
     }

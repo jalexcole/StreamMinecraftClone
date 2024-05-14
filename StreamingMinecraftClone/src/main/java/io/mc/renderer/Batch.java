@@ -87,4 +87,19 @@ public class Batch<T> {
 
         return res;
     }
+
+    public boolean hasRoom() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'hasRoom'");
+    }
+
+    public int getTextureSlot(int graphicsId, boolean isFont) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getTextureSlot'");
+    }
+
+    public boolean hasTextureRoom(boolean isFont) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'hasTextureRoom'");
+    }
 }

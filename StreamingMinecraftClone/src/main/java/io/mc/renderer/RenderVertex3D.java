@@ -5,10 +5,10 @@ import org.joml.Vector3f;
 import org.joml.Vector4f;
 
 public class RenderVertex3D {
-    private Vector3f position;
-    private int textureSlot;
-    private Vector2f textureCoords;
-    private Vector3f normal;
+    Vector3f position;
+    int textureSlot;
+    Vector2f textureCoords;
+    Vector3f normal;
     /**
      * 
      */

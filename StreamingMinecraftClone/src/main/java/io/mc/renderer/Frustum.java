@@ -68,5 +68,10 @@ public class Frustum {
 
     }
 
+    public boolean isBoxVisible(Vector3f sub) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'isBoxVisible'");
+    }
+
     
 }
