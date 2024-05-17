@@ -5,6 +5,11 @@ public class TexturePacker {
     public static void packTextures(String filePath, String configFilepath) {
     }
 
+    public static void packTextures(String string, String string2, Object packedItemTexturesFilepath, String string3) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'packTextures'");
+    }
+
 }
 
 class Location {

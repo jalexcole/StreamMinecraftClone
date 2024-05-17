@@ -4,7 +4,7 @@ import org.joml.Vector3f;
 
 public class Rigidbody {
     public Vector3f velocity = new Vector3f();
-    Vector3f acceleration = new Vector3f();
+    public Vector3f acceleration = new Vector3f();
 
     boolean onGround = true;
     boolean isSensor = true;
@@ -12,7 +12,7 @@ public class Rigidbody {
 
     public void zeroForces() {
         this.acceleration = new Vector3f();
-        velocity = new Vector3f();
+        this.velocity = new Vector3f();
     }
 
     /**

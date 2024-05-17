@@ -1,7 +1,10 @@
 package io.mc.gameplay;
 
+import static org.lwjgl.system.MemoryUtil.NULL;
+
 import java.util.logging.Logger;
 
+import org.joml.Math;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
@@ -26,40 +29,36 @@ public class CharacterSystem {
 
             var speed = controller.controllerBaseSpeed;
             
-            if (controller.isRunning)
-				{
+            if (controller.isRunning) {
 					speed = controller.controllerRunSpeed;
 				}
 
 				rb.velocity.x = 0;
-				if (!rb.useGravity)
-				{
+				if (!rb.useGravity) {
 					rb.velocity.y = 0;
 				}
 				rb.velocity.z = 0;
 
-				float rotation = glm::radians(transform.orientation.y);
+				float rotation = (float) (transform.orientation.y * Math.PI / 180);
 				Vector3f forward = new Vector3f((float) Math.cos(rotation), 0f, (float) Math.sin(rotation));
 				Vector3f right = new Vector3f(-forward.z, 0f, forward.x);
-				if (controller.movementAxis.x) {
+				if (controller.movementAxis.x == NULL) {
 					rb.velocity.x = forward.x * controller.movementAxis.x;
 					rb.velocity.z = forward.z * controller.movementAxis.x;
 				}
-				if (!rb.useGravity && controller.movementAxis.y) {
+				if (!rb.useGravity && controller.movementAxis.y == NULL) {
 					rb.velocity.y += controller.movementAxis.y;
 				}
-				if (controller.movementAxis.z)
-				{
+				if (controller.movementAxis.z == NULL) {
 					rb.velocity.x += right.x * controller.movementAxis.z;
 					rb.velocity.z += right.z * controller.movementAxis.z;
 				}
 
-				if (Math.abs(rb.velocity.x) > 0 || Math.abs(rb.velocity.z) > 0 || (Math.abs(rb.velocity.y) > 0 && !rb.useGravity))
-				{
+				if (Math.abs(rb.velocity.x) > 0 || Math.abs(rb.velocity.z) > 0 || (Math.abs(rb.velocity.y) > 0 && !rb.useGravity)) {
 					float denominator = 1.0f / (float) Math.sqrt(rb.velocity.x * rb.velocity.x + rb.velocity.z * rb.velocity.z);
 					if (!rb.useGravity && Math.abs(rb.velocity.y) > 0)
 					{
-						denominator = Math.inversesqrt(rb.velocity.x * rb.velocity.x + rb.velocity.z * rb.velocity.z + rb.velocity.y * rb.velocity.y);
+						denominator = (float) (1.0f / Math.sqrt(rb.velocity.x * rb.velocity.x + rb.velocity.z * rb.velocity.z + rb.velocity.y * rb.velocity.y));
 						rb.velocity.y *= denominator * speed;
 					}
 					rb.velocity.x *= denominator * speed;
@@ -76,7 +75,9 @@ public class CharacterSystem {
 				float lerp = 0.1f;
 				transform.orientation.x -= smoothMouse.y;
 				transform.orientation.y -= smoothMouse.x;
-				transform.orientation.x = Math.clamp(transform.orientation.x, -89.9f, 89.9f);
+
+
+				transform.orientation.x = (float) Math.clamp((double) transform.orientation.x, -89.9, 89.9);
 				if (transform.orientation.y > 360.0f)
 				{
 					transform.orientation.y = 360.0f - transform.orientation.y;
@@ -108,18 +109,18 @@ public class CharacterSystem {
 					// 	cameraEntity = registry.find(TagType.Camera);
 					// }
 
-					if (cameraEntity != null && registry.hasComponent<Transform>(cameraEntity))
-					{
-						Transform cameraTransform = registry.getComponent<Transform>(cameraEntity);
-						cameraTransform.position = transform.position + controller.cameraOffset;
-						cameraTransform.orientation = transform.orientation;
-					}
-					else
-					{
-						logger.warning("Camera is null!");
-					}
+					// if (cameraEntity != null && registry.hasComponent<Transform>(cameraEntity))
+					// {
+					// 	Transform cameraTransform = registry.getComponent<Transform>(cameraEntity);
+					// 	cameraTransform.position = transform.position.add(controller.cameraOffset);
+					// 	cameraTransform.orientation = transform.orientation;
+					// }
+					// else
+					// {
+					// 	logger.warning("Camera is null!");
+					// }
 				}
-			}
+			
         });
 }
 

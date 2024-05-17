@@ -68,5 +68,10 @@ public class World {
         return "World []";
     }
 
+    public static void setSavePath(String string) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'setSavePath'");
+    }
+
     
 }

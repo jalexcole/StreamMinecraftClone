@@ -59,7 +59,8 @@ public class Scene {
         final String packedItemTextureFilePath = "assets/generated/pacledItemTexture.png";
 
         TexturePacker.packTextures("assets/image/item", "assets/generated/itemTextureFormat.yaml");
-        TexturePacker.packTextures("assets/images/item", "assets/generated/itemTextureFormat.yaml", packedItemTexturesFilepath, "Items");
+        Object packedItemTexturesFilepath;
+        TexturePacker.packTextures("assets/images/item", "assets/generated/itemTextureFormat.yaml", packedItemTextureFilePath, "Items");
 		BlockMap.loadBlocks("assets/generated/textureFormat.yaml", "assets/generated/itemTextureFormat.yaml", "assets/custom/blockFormats.yaml");
 		BlockMap.uploadTextureCoordinateMapToGpu();
         Scene.registry = registry;
@@ -84,7 +85,7 @@ public class Scene {
             }
         }
         
-        queueMainEvent(GEventType.SetDeltaTime, Application.deltaTime, false);
+        queueMainEvent(GEventType.SetDeltaTime, 0, Application.deltaTime, false);
         processEvent(null, 0, 0);
 
         switch (currentScene) {
@@ -111,7 +112,7 @@ public class Scene {
 
         Renderer.render();
 
-        queueMainEvent(GEventType.FrameTick, 0, false);
+        queueMainEvent(GEventType.FrameTick, 0, 0, false);
 
         
         if (changedSceneAtFrameEnd) {

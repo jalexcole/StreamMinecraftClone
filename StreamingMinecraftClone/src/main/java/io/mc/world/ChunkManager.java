@@ -32,7 +32,7 @@ class CommandBufferContainer {
     CommandBufferContainer(int maxNumCommands, boolean isTransparent) {
         this.maxNumCommands = maxNumCommands;
         this.isTransparent = isTransparent;
-        commandBuffer = 0;
+        commandBuffer = null;
         chunkPosBuffer = 0;
         biomeBuffer = 0;
         numCommands = 0;
